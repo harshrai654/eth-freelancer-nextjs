@@ -36,8 +36,11 @@ export default function RegisterForm({ children }) {
 	});
 
 	function submitUserdata(formData) {
-		const imageHash = image.length > 0 ? utils.uploadImage(image[0]) : "";
-		setUserData({ ...formData, imageHash });
+		const imageHash =
+			image.length > 0
+				? utils.uploadImage(image[0], user?.getUsername())
+				: "";
+		// setUserData({ ...formData, imageHash });
 		showNotification({
 			id: "register success",
 			autoClose: 5000,

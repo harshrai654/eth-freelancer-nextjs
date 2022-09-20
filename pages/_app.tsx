@@ -7,9 +7,13 @@ import {
 	MantineProvider,
 	ColorScheme,
 	ColorSchemeProvider,
+	AppShell,
+	Header,
 } from "@mantine/core";
 import { NotificationsProvider } from "@mantine/notifications";
 import { MoralisProvider } from "react-moralis";
+import CustomHeader from "../components/CustomHeader";
+import AuthRouter from "../components/AuthRouter";
 
 export default function App(props: AppProps & { colorScheme: ColorScheme }) {
 	const { Component, pageProps } = props;
@@ -47,8 +51,18 @@ export default function App(props: AppProps & { colorScheme: ColorScheme }) {
 					<MoralisProvider
 						serverUrl="https://vier6qc1ui3a.usemoralis.com:2053/server"
 						appId="KrFRPZAax8pgSd3vkRIeQYNB8vB0pAbc8PmaUngp">
-						<NotificationsProvider>
-							<Component {...pageProps} />
+						<NotificationsProvider position="top-right">
+							<AppShell
+								padding="xs"
+								header={
+									<Header height={60} p="xs">
+										<CustomHeader />
+									</Header>
+								}>
+								<AuthRouter>
+									<Component {...pageProps} />
+								</AuthRouter>
+							</AppShell>
 						</NotificationsProvider>
 					</MoralisProvider>
 				</MantineProvider>

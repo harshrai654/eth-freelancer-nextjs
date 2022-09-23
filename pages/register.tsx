@@ -1,4 +1,4 @@
-import { Grid, Title, Divider, Radio, Center, TextInput } from "@mantine/core";
+import { Grid, Title, Divider, Radio, Center } from "@mantine/core";
 import { useState } from "react";
 import EmployeeForm from "../components/Forms/RegisterForm";
 import EmployerForm from "../components/Forms/EmployerForm";

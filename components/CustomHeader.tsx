@@ -1,11 +1,15 @@
 import { Grid, Title, Button, Menu, Container } from "@mantine/core";
-import { IconLogout, IconShieldCheck } from "@tabler/icons";
+import { IconLogout, IconShieldCheck, IconPlus } from "@tabler/icons";
 import { useMoralis } from "react-moralis";
 import { showNotification } from "@mantine/notifications";
+import { useContext } from "react";
+import { ModalContext } from "../contexts/ModalContext";
 
 export default function CustomHeader() {
 	const { authenticate, isAuthenticated, user, logout, isAuthenticating } =
 		useMoralis();
+	const { setOpen } = useContext(ModalContext);
+	const role = user?.get("role");
 
 	return (
 		<Grid justify="space-between" align="center" gutter="xl">
@@ -41,8 +45,16 @@ export default function CustomHeader() {
 
 						<Menu.Dropdown>
 							<Menu.Label>
-								{user?.get("name")}: {user?.getUsername()}
+								{user?.get("name")}: {user?.getUsername()} [
+								{user?.get("role")}]
 							</Menu.Label>
+							{role === "employer" && (
+								<Menu.Item
+									icon={<IconPlus size={18} />}
+									onClick={() => setOpen(true)}>
+									Add New Project
+								</Menu.Item>
+							)}
 							<Menu.Item
 								icon={<IconLogout size={18} />}
 								onClick={() => {

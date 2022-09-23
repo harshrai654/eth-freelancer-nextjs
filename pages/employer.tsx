@@ -1,3 +1,12 @@
+import AddProjectForm from "../components/Forms/AddProjectForm";
+import ModalWrapper from "../components/ModalWrapper";
+
 export default function Employer() {
-	return <div>Employer</div>;
+	return (
+		<>
+			<ModalWrapper title="Add new Project">
+				<AddProjectForm />
+			</ModalWrapper>
+		</>
+	);
 }

@@ -1,11 +1,17 @@
-import { Grid, Title, Button, Menu, Container } from "@mantine/core";
-import { IconLogout, IconShieldCheck, IconPlus } from "@tabler/icons";
+import { Grid, Title, Button, Menu } from "@mantine/core";
+import {
+	IconLogout,
+	IconShieldCheck,
+	IconPlus,
+	IconSun,
+	IconMoon,
+} from "@tabler/icons";
 import { useMoralis } from "react-moralis";
 import { showNotification } from "@mantine/notifications";
 import { useContext } from "react";
 import { ModalContext } from "../contexts/ModalContext";
 
-export default function CustomHeader() {
+export default function CustomHeader({ colorScheme, setColorScheme }) {
 	const { authenticate, isAuthenticated, user, logout, isAuthenticating } =
 		useMoralis();
 	const { setOpen } = useContext(ModalContext);
@@ -13,11 +19,12 @@ export default function CustomHeader() {
 
 	return (
 		<Grid justify="space-between" align="center" gutter="xl">
-			<Grid.Col span={5}>
+			<Grid.Col span={4}>
 				<Title weight={600} order={1}>
 					D-Lancer
 				</Title>
 			</Grid.Col>
+
 			<Grid.Col span={1}>
 				{!isAuthenticated ? (
 					<Button
@@ -61,6 +68,23 @@ export default function CustomHeader() {
 									logout();
 								}}>
 								Logout
+							</Menu.Item>
+							<Menu.Item
+								icon={
+									colorScheme === "dark" ? (
+										<IconSun />
+									) : (
+										<IconMoon />
+									)
+								}
+								onClick={() =>
+									setColorScheme(
+										colorScheme === "dark"
+											? "light"
+											: "dark"
+									)
+								}>
+								Toggle Theme
 							</Menu.Item>
 						</Menu.Dropdown>
 					</Menu>

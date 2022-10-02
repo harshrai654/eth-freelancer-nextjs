@@ -50,15 +50,18 @@ export default function App(props: AppProps & { colorScheme: ColorScheme }) {
 					withGlobalStyles
 					withNormalizeCSS>
 					<MoralisProvider
-						serverUrl="https://vier6qc1ui3a.usemoralis.com:2053/server"
-						appId="KrFRPZAax8pgSd3vkRIeQYNB8vB0pAbc8PmaUngp">
+						serverUrl="https://ivpsudbvuwhw.usemoralis.com:2053/server"
+						appId="QN2m4QcjmEUcr5MV4fov1elbCBI2u2faI6ySGMF5">
 						<NotificationsProvider position="top-right">
 							<ModalContextProvider>
 								<AppShell
 									padding="xs"
 									header={
 										<Header height={60} p="xs">
-											<CustomHeader />
+											<CustomHeader
+												colorScheme={colorScheme}
+												setColorScheme={setColorScheme}
+											/>
 										</Header>
 									}>
 									<AuthRouter>
@@ -75,5 +78,5 @@ export default function App(props: AppProps & { colorScheme: ColorScheme }) {
 }
 
 App.getInitialProps = ({ ctx }: { ctx: GetServerSidePropsContext }) => ({
-	colorScheme: getCookie("mantine-color-scheme", ctx) || "light",
+	colorScheme: getCookie("mantine-color-scheme", ctx) || "dark",
 });

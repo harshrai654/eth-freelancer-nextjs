@@ -11,11 +11,17 @@ export default function AuthRouter({ children }) {
 		isAuthenticating,
 		isLoggingOut,
 		isUserUpdating,
+		isWeb3Enabled,
+		enableWeb3,
 		isWeb3EnableLoading,
 	} = useMoralis();
 	const router = useRouter();
 
 	useEffect(() => {
+		if (!isWeb3Enabled) {
+			enableWeb3();
+		}
+
 		if (isUnauthenticated) {
 			router.replace("/");
 		} else if (isAuthenticated) {
@@ -27,7 +33,7 @@ export default function AuthRouter({ children }) {
 				router.replace("/register");
 			}
 		}
-	});
+	}, []);
 
 	return (
 		<>

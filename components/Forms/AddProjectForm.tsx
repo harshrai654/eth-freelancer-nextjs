@@ -8,10 +8,14 @@ import {
 	ActionIcon,
 	Divider,
 	Text,
+	LoadingOverlay,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { IconCurrencyEthereum, IconTrash } from "@tabler/icons";
+import { abi, contractAddresses, contractNames } from "../../constants";
+import { useWeb3Contract, useMoralis } from "react-moralis";
 import { v4 } from "uuid";
+import Moralis from "moralis-v1";
 
 export default function AddProjectForm() {
 	const form = useForm({
@@ -35,19 +39,64 @@ export default function AddProjectForm() {
 				value.length > 0 ? null : "Atleast 1 milestone required",
 		},
 	});
+	const { chainId: chainIdHex } = useMoralis();
+	const chainId = parseInt(chainIdHex);
 
-	function handleAddProjectSubmit(formValues) {
-		console.log(formValues);
+	const projectsContractAddress = contractAddresses[chainId]
+		? contractAddresses[chainId][contractNames.PROJECTS_CONTRACT]
+		: null;
+
+	const {
+		data,
+		error,
+		isFetching,
+		isLoading,
+		runContractFunction: addProject,
+	} = useWeb3Contract({});
+
+	async function handleAddProjectSubmit({
+		title,
+		description,
+		milestones,
+		duration,
+	}) {
+		const milestoneNames = milestones.map((m) => m.name);
+		const milestoneRewards = milestones.map((m) =>
+			Moralis.Units.ETH(m.amount.toFixed(15))
+		);
+
+		const params = {
+			abi,
+			contractAddress: projectsContractAddress,
+			functionName: "addProject",
+			params: {
+				projectTitle: title,
+				projectDescription: description,
+				duration,
+				_checkpointNames: milestoneNames,
+				_checkpointRewards: milestoneRewards,
+			},
+		};
+
+		await addProject({
+			params,
+			onComplete: () => {
+				console.log(params);
+			},
+			onError: (error) => {
+				console.log(error);
+			},
+		});
 	}
 
 	const total = form.values.milestones.reduce((x, y) => x + y.amount, 0);
-	console.log(total);
 
 	return (
 		<form
 			onSubmit={form.onSubmit((values) =>
 				handleAddProjectSubmit(values)
 			)}>
+			<LoadingOverlay visible={isLoading || isFetching} />
 			<TextInput
 				withAsterisk
 				label="Project Title"
@@ -93,7 +142,7 @@ export default function AddProjectForm() {
 							radius="md"
 							step={0.0000001}
 							description="Reward value for milestone completion"
-							precision={7}
+							precision={10}
 							required
 							min={0}
 							icon={<IconCurrencyEthereum size={18} />}

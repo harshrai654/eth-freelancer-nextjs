@@ -31,6 +31,8 @@ export default function RegisterForm({ children, role }) {
 
 	async function submitUserdata(formData) {
 		setUserData(formData);
+		console.log(formData);
+
 		showNotification({
 			id: "register success",
 			autoClose: 5000,

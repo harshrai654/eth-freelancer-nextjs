@@ -31,8 +31,6 @@ export default function App(props: AppProps & { colorScheme: ColorScheme }) {
 		});
 	};
 
-	console.log(props);
-
 	return (
 		<>
 			<Head>

@@ -8,16 +8,22 @@ import {
 	ActionIcon,
 	Divider,
 	Text,
-	LoadingOverlay,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { IconCurrencyEthereum, IconTrash } from "@tabler/icons";
+import { useEffect } from "react";
+import {
+	IconCurrencyEthereum,
+	IconTrash,
+	IconShieldCheck,
+	IconShieldOff,
+} from "@tabler/icons";
 import { abi, contractAddresses, contractNames } from "../../constants";
 import { useWeb3Contract, useMoralis } from "react-moralis";
 import { v4 } from "uuid";
 import Moralis from "moralis-v1";
+import { showNotification } from "@mantine/notifications";
 
-export default function AddProjectForm() {
+export default function AddProjectForm({ setLoading }) {
 	const form = useForm({
 		initialValues: {
 			title: "",
@@ -39,15 +45,20 @@ export default function AddProjectForm() {
 				value.length > 0 ? null : "Atleast 1 milestone required",
 		},
 	});
+
+	const total = form.values.milestones.reduce((x, y) => x + y.amount, 0);
+
 	const { chainId: chainIdHex } = useMoralis();
 	const chainId = parseInt(chainIdHex);
 
 	const projectsContractAddress = contractAddresses[chainId]
 		? contractAddresses[chainId][contractNames.PROJECTS_CONTRACT]
 		: null;
+	const projectsContractAbi = JSON.parse(
+		abi[chainId][contractNames.PROJECTS_CONTRACT]
+	);
 
 	const {
-		data,
 		error,
 		isFetching,
 		isLoading,
@@ -66,7 +77,7 @@ export default function AddProjectForm() {
 		);
 
 		const params = {
-			abi,
+			abi: projectsContractAbi,
 			contractAddress: projectsContractAddress,
 			functionName: "addProject",
 			params: {
@@ -80,23 +91,52 @@ export default function AddProjectForm() {
 
 		await addProject({
 			params,
-			onComplete: () => {
-				console.log(params);
+			onSuccess: (data) => {
+				showNotification({
+					id: "project-add-success",
+					autoClose: 5000,
+					title: "Project Created",
+					message: `Project ${title} added successfully`,
+					color: "green",
+					icon: <IconShieldCheck />,
+				});
+				console.log(data);
 			},
 			onError: (error) => {
+				showNotification({
+					id: "project-add-error",
+					autoClose: 5000,
+					title: "Error",
+					message: `Project ${title} creation failed`,
+					color: "red",
+					icon: <IconShieldOff />,
+				});
 				console.log(error);
 			},
 		});
 	}
 
-	const total = form.values.milestones.reduce((x, y) => x + y.amount, 0);
+	useEffect(() => {
+		setLoading(isLoading || isFetching);
+
+		if (error) {
+			showNotification({
+				id: "project-add-error",
+				autoClose: 5000,
+				title: "Error",
+				message: `Project creation failed`,
+				color: "red",
+				icon: <IconShieldOff />,
+			});
+			console.log(error);
+		}
+	}, [isLoading, isFetching, error]);
 
 	return (
 		<form
 			onSubmit={form.onSubmit((values) =>
 				handleAddProjectSubmit(values)
 			)}>
-			<LoadingOverlay visible={isLoading || isFetching} />
 			<TextInput
 				withAsterisk
 				label="Project Title"
@@ -140,7 +180,7 @@ export default function AddProjectForm() {
 						<NumberInput
 							label="Milestone Reward"
 							radius="md"
-							step={0.0000001}
+							step={0.0000000001}
 							description="Reward value for milestone completion"
 							precision={10}
 							required

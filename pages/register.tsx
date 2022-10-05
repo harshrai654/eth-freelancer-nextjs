@@ -1,6 +1,6 @@
 import { Grid, Title, Divider, Radio, Center } from "@mantine/core";
 import { useState } from "react";
-import EmployeeForm from "../components/Forms/RegisterForm";
+import EmployeeForm from "../components/Forms/EmployeeForm";
 import EmployerForm from "../components/Forms/EmployerForm";
 
 export default function Register() {
@@ -25,7 +25,11 @@ export default function Register() {
 				</Center>
 			</Grid.Col>
 			<Grid.Col>
-				{role == "employee" ? <EmployeeForm /> : <EmployerForm />}
+				{role === "employee" ? (
+					<EmployeeForm role={role} />
+				) : (
+					<EmployerForm role={role} />
+				)}
 			</Grid.Col>
 		</Grid>
 	);

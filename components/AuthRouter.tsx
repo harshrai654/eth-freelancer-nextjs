@@ -6,14 +6,14 @@ import { LoadingOverlay } from "@mantine/core";
 export default function AuthRouter({ children }) {
 	const {
 		isAuthenticated,
-		isUnauthenticated,
 		user,
 		isAuthenticating,
 		isLoggingOut,
 		isUserUpdating,
+		isWeb3EnableLoading,
 		isWeb3Enabled,
 		enableWeb3,
-		isWeb3EnableLoading,
+		web3,
 	} = useMoralis();
 	const router = useRouter();
 
@@ -21,10 +21,12 @@ export default function AuthRouter({ children }) {
 		if (!isWeb3Enabled) {
 			enableWeb3();
 		}
+	}, [web3?.provider]);
 
-		if (isUnauthenticated) {
+	useEffect(() => {
+		if (!isAuthenticated) {
 			router.replace("/");
-		} else if (isAuthenticated) {
+		} else {
 			const role = user?.get("role");
 
 			if (role === "employee" || role === "employer") {
@@ -33,19 +35,18 @@ export default function AuthRouter({ children }) {
 				router.replace("/register");
 			}
 		}
-	}, []);
+	}, [isAuthenticated]);
+
+	const loaderVisible =
+		isAuthenticating ||
+		isLoggingOut ||
+		isUserUpdating ||
+		isWeb3EnableLoading;
 
 	return (
 		<>
-			<LoadingOverlay
-				visible={
-					isAuthenticating ||
-					isLoggingOut ||
-					isUserUpdating ||
-					isWeb3EnableLoading
-				}
-			/>
-			{children}
+			<LoadingOverlay visible={loaderVisible} />
+			{isWeb3Enabled && children}
 		</>
 	);
 }

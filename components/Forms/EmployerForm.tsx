@@ -1,5 +1,5 @@
 import RegisterForm from "./RegisterForm";
 
-export default function EmployerForm() {
-	return <RegisterForm role="employer" />;
+export default function EmployerForm({ role }) {
+	return <RegisterForm role={role} />;
 }

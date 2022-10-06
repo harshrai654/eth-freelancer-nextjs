@@ -46,12 +46,18 @@ export default function ProjectCard({ id }) {
 		<>
 			<LoadingOverlay visible={isFetching || isLoading} />
 			{Array.isArray(data) && (
-				<Card shadow="sm" p="lg" radius="md" withBorder>
+				<Card
+					shadow="sm"
+					p="lg"
+					m="xs"
+					radius="md"
+					withBorder
+					style={{ height: "100%" }}>
 					<Card.Section>
 						<Image
-							src="https://images.unsplash.com/photo-1527004013197-933c4bb611b3?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=720&q=80"
+							src="https://source.unsplash.com/random/?abstract,color"
 							height={160}
-							alt="Norway"
+							alt="Project Card"
 						/>
 					</Card.Section>
 
@@ -78,7 +84,7 @@ export default function ProjectCard({ id }) {
 						fullWidth
 						mt="md"
 						radius="md">
-						Book classic tour now
+						View Project
 					</Button>
 				</Card>
 			)}

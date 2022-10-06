@@ -1,10 +1,10 @@
 import { useEffect } from "react";
 import { useMoralis, useWeb3Contract } from "react-moralis";
 import { abi, contractAddresses, contractNames } from "../constants";
-import { Grid, LoadingOverlay, SimpleGrid } from "@mantine/core";
+import { Grid, LoadingOverlay } from "@mantine/core";
 import ProjectCard from "./ProjectCard";
 
-export default function ClientProjects() {
+export default function AllProjects() {
 	const { chainId: chainIdHex, account: clientId } = useMoralis();
 
 	const chainId = parseInt(chainIdHex);
@@ -21,19 +21,17 @@ export default function ClientProjects() {
 		error,
 		isFetching,
 		isLoading,
-		runContractFunction: getClientProjects,
+		runContractFunction: getAllProjects,
 	} = useWeb3Contract({
 		abi: projectsContractAbi,
 		contractAddress: projectsContractAddress,
-		functionName: "getClientProjects",
-		params: {
-			_clientAddress: clientId,
-		},
+		functionName: "getAllProjects",
+		params: {},
 	});
 
 	useEffect(() => {
 		(async () => {
-			await getClientProjects();
+			await getAllProjects();
 		})();
 		if (error) {
 			console.log(error);
@@ -45,11 +43,13 @@ export default function ClientProjects() {
 		<>
 			<LoadingOverlay visible={isFetching || isLoading} />
 			{Array.isArray(data) && (
-				<SimpleGrid cols={5} p={12}>
+				<Grid gutter="lg" p={12} justify="flex-start" align="center">
 					{data.map((projectId) => (
-						<ProjectCard id={projectId.toString()} />
+						<Grid.Col m={6} span={2}>
+							<ProjectCard id={projectId.toString()} />
+						</Grid.Col>
 					))}
-				</SimpleGrid>
+				</Grid>
 			)}
 		</>
 	);

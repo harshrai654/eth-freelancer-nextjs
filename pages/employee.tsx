@@ -1,3 +1,9 @@
+import AllProjects from "../components/AllProjects";
+
 export default function Employee() {
-	return <div>Employee</div>;
+	return (
+		<>
+			<AllProjects />
+		</>
+	);
 }

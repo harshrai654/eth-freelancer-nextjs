@@ -4,16 +4,17 @@ import {
 	Group,
 	Box,
 	Notification,
-	Avatar,
 	Grid,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useMoralis } from "react-moralis";
 import { IconX, IconShieldCheck } from "@tabler/icons";
 import { showNotification } from "@mantine/notifications";
+import { useRouter } from "next/router";
 
 export default function RegisterForm({ children, role }) {
 	const { setUserData, userError, isUserUpdating, user } = useMoralis();
+	const router = useRouter();
 
 	const form = useForm({
 		initialValues: {
@@ -31,7 +32,6 @@ export default function RegisterForm({ children, role }) {
 
 	async function submitUserdata(formData) {
 		setUserData(formData);
-		console.log(formData);
 
 		showNotification({
 			id: "register success",
@@ -41,6 +41,8 @@ export default function RegisterForm({ children, role }) {
 			color: "green",
 			icon: <IconShieldCheck />,
 		});
+
+		router.replace(`/${role}`);
 	}
 
 	return (

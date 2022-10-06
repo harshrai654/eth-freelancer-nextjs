@@ -10,7 +10,7 @@ import {
 	Text,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { useEffect } from "react";
+import { useEffect, useContext } from "react";
 import {
 	IconCurrencyEthereum,
 	IconTrash,
@@ -22,8 +22,13 @@ import { useWeb3Contract, useMoralis } from "react-moralis";
 import { v4 } from "uuid";
 import Moralis from "moralis-v1";
 import { showNotification } from "@mantine/notifications";
+import { useRouter } from "next/router";
+import { ModalContext } from "../../contexts/ModalContext";
 
 export default function AddProjectForm({ setLoading }) {
+	const router = useRouter();
+	const { setOpen } = useContext(ModalContext);
+
 	const form = useForm({
 		initialValues: {
 			title: "",
@@ -91,7 +96,7 @@ export default function AddProjectForm({ setLoading }) {
 
 		await addProject({
 			params,
-			onSuccess: (data) => {
+			onSuccess: async (tx) => {
 				showNotification({
 					id: "project-add-success",
 					autoClose: 5000,
@@ -100,7 +105,7 @@ export default function AddProjectForm({ setLoading }) {
 					color: "green",
 					icon: <IconShieldCheck />,
 				});
-				console.log(data);
+				await tx.wait(6);
 			},
 			onError: (error) => {
 				showNotification({
@@ -114,6 +119,8 @@ export default function AddProjectForm({ setLoading }) {
 				console.log(error);
 			},
 		});
+
+		setOpen(false);
 	}
 
 	useEffect(() => {

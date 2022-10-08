@@ -10,9 +10,11 @@ import {
 	Button,
 	Group,
 } from "@mantine/core";
+import { useRouter } from "next/router";
 
 export default function ProjectCard({ id }) {
 	const { chainId: chainIdHex, account: clientId } = useMoralis();
+	const router = useRouter();
 
 	const chainId = parseInt(chainIdHex);
 
@@ -83,7 +85,8 @@ export default function ProjectCard({ id }) {
 						color="blue"
 						fullWidth
 						mt="md"
-						radius="md">
+						radius="md"
+						onClick={() => router.push(`/projects/${id}`)}>
 						View Project
 					</Button>
 				</Card>

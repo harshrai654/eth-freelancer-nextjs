@@ -45,11 +45,13 @@ export default function ClientProjects() {
 		<>
 			<LoadingOverlay visible={isFetching || isLoading} />
 			{Array.isArray(data) && (
-				<SimpleGrid cols={5} p={12}>
+				<Grid gutter="lg" p={12} justify="flex-start" align="center">
 					{data.map((projectId) => (
-						<ProjectCard id={projectId.toString()} />
+						<Grid.Col m={6} span={2} key={projectId}>
+							<ProjectCard id={projectId.toString()} />
+						</Grid.Col>
 					))}
-				</SimpleGrid>
+				</Grid>
 			)}
 		</>
 	);

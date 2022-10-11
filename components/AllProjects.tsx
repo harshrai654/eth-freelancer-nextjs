@@ -45,7 +45,7 @@ export default function AllProjects() {
 			{Array.isArray(data) && (
 				<Grid gutter="lg" p={12} justify="flex-start" align="center">
 					{data.map((projectId) => (
-						<Grid.Col m={6} span={2}>
+						<Grid.Col m={6} span={2} key={projectId}>
 							<ProjectCard id={projectId.toString()} />
 						</Grid.Col>
 					))}

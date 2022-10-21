@@ -5,6 +5,7 @@ import {
 	IconPlus,
 	IconSun,
 	IconMoon,
+	IconUserSearch,
 } from "@tabler/icons";
 import { useContext } from "react";
 import { useMoralis } from "react-moralis";

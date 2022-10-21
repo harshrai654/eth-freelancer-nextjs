@@ -49,9 +49,7 @@ export default function ClientProjects() {
 			{Array.isArray(data) && (
 				<Grid gutter="lg" p={12} justify="center" align="center">
 					{data.map((projectId) => (
-						<Grid.Col m={6} span={3} key={projectId}>
-							<ProjectCard id={projectId.toString()} />
-						</Grid.Col>
+						<ProjectCard id={projectId.toString()} />
 					))}
 				</Grid>
 			)}

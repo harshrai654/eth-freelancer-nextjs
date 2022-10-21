@@ -1,11 +1,19 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useMoralis, useWeb3Contract } from "react-moralis";
 import { abi, contractAddresses, contractNames } from "../constants";
-import { Grid, LoadingOverlay } from "@mantine/core";
+import {
+	Grid,
+	LoadingOverlay,
+	Switch,
+	Container,
+	Center,
+	Divider,
+} from "@mantine/core";
 import ProjectCard from "./ProjectCard";
 
 export default function AllProjects() {
-	const { chainId: chainIdHex, account: clientId } = useMoralis();
+	const { chainId: chainIdHex } = useMoralis();
+	const [ownProjects, setOwnProjects] = useState(false);
 
 	const chainId = parseInt(chainIdHex);
 
@@ -40,17 +48,29 @@ export default function AllProjects() {
 	}, []);
 
 	return (
-		<>
+		<Container fluid>
 			<LoadingOverlay visible={isFetching || isLoading} />
+			<Center>
+				<Switch
+					label="Show my projects only"
+					size="md"
+					checked={ownProjects}
+					onChange={(event) =>
+						setOwnProjects(event.currentTarget.checked)
+					}
+				/>
+				<Divider orientation="horizontal" />
+			</Center>
 			{Array.isArray(data) && (
 				<Grid gutter="lg" p={12} justify="center" align="center">
 					{data.map((projectId) => (
-						<Grid.Col m={6} span={3} key={projectId}>
-							<ProjectCard id={projectId.toString()} />
-						</Grid.Col>
+						<ProjectCard
+							id={projectId.toString()}
+							ownProjects={ownProjects}
+						/>
 					))}
 				</Grid>
 			)}
-		</>
+		</Container>
 	);
 }

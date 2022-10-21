@@ -43,9 +43,9 @@ export default function AllProjects() {
 		<>
 			<LoadingOverlay visible={isFetching || isLoading} />
 			{Array.isArray(data) && (
-				<Grid gutter="lg" p={12} justify="flex-start" align="center">
+				<Grid gutter="lg" p={12} justify="center" align="center">
 					{data.map((projectId) => (
-						<Grid.Col m={6} span={2} key={projectId}>
+						<Grid.Col m={6} span={3} key={projectId}>
 							<ProjectCard id={projectId.toString()} />
 						</Grid.Col>
 					))}

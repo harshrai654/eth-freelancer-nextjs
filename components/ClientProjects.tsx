@@ -1,11 +1,14 @@
 import { useEffect } from "react";
 import { useMoralis, useWeb3Contract } from "react-moralis";
 import { abi, contractAddresses, contractNames } from "../constants";
-import { Grid, LoadingOverlay, SimpleGrid } from "@mantine/core";
+import { Grid, LoadingOverlay } from "@mantine/core";
+import { ModalContext } from "../contexts/ModalContext";
+import { useContext } from "react";
 import ProjectCard from "./ProjectCard";
 
 export default function ClientProjects() {
 	const { chainId: chainIdHex, account: clientId } = useMoralis();
+	const { open } = useContext(ModalContext);
 
 	const chainId = parseInt(chainIdHex);
 
@@ -38,16 +41,15 @@ export default function ClientProjects() {
 		if (error) {
 			console.log(error);
 		}
-		console.log(data);
-	}, []);
+	}, [open]);
 
 	return (
 		<>
 			<LoadingOverlay visible={isFetching || isLoading} />
 			{Array.isArray(data) && (
-				<Grid gutter="lg" p={12} justify="flex-start" align="center">
+				<Grid gutter="lg" p={12} justify="center" align="center">
 					{data.map((projectId) => (
-						<Grid.Col m={6} span={2} key={projectId}>
+						<Grid.Col m={6} span={3} key={projectId}>
 							<ProjectCard id={projectId.toString()} />
 						</Grid.Col>
 					))}

@@ -54,7 +54,13 @@ export default function ProjectCard({ id }) {
 					m="xs"
 					radius="md"
 					withBorder
-					style={{ height: "100%" }}>
+					style={{
+						maxHeight: "350px",
+						height: "100%",
+						overflowY: "auto",
+						paddingRight: "17px",
+						boxSizing: "content-box",
+					}}>
 					<Card.Section>
 						<Image
 							src="https://source.unsplash.com/random/?abstract,color"

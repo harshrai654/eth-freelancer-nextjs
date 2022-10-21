@@ -18,7 +18,6 @@ export const ModalContext = createContext<AppContextInterface>(initialContext);
 
 export default function ModalContextProvider({ children }: Props) {
 	const [open, setOpen] = useState(false);
-
 	return (
 		<ModalContext.Provider value={{ open, setOpen }}>
 			{children}

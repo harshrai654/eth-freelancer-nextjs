@@ -6,15 +6,20 @@ import {
 	IconSun,
 	IconMoon,
 } from "@tabler/icons";
+import { useContext } from "react";
 import { useMoralis } from "react-moralis";
 import { showNotification } from "@mantine/notifications";
-import { useContext } from "react";
 import { ModalContext } from "../contexts/ModalContext";
+import AddProjectForm from "../components/Forms/AddProjectForm";
+import ModalWrapper from "../components/ModalWrapper";
+import { LoadingContext } from "../contexts/LoadingContext";
 
 export default function CustomHeader({ colorScheme, setColorScheme }) {
 	const { authenticate, isAuthenticated, user, logout, isAuthenticating } =
 		useMoralis();
 	const { setOpen } = useContext(ModalContext);
+	const { loading, setLoading } = useContext(LoadingContext);
+
 	const role = user?.get("role");
 
 	return (
@@ -24,7 +29,6 @@ export default function CustomHeader({ colorScheme, setColorScheme }) {
 					D-Lancer
 				</Title>
 			</Grid.Col>
-
 			<Grid.Col span={1}>
 				{!isAuthenticated ? (
 					<Button
@@ -90,6 +94,9 @@ export default function CustomHeader({ colorScheme, setColorScheme }) {
 					</Menu>
 				)}
 			</Grid.Col>
+			<ModalWrapper title="Add new Project" loading={loading}>
+				<AddProjectForm setLoading={setLoading} />
+			</ModalWrapper>
 		</Grid>
 	);
 }

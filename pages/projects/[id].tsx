@@ -10,10 +10,16 @@ import {
 	Divider,
 	Card,
 	Button,
+	SegmentedControl,
 } from "@mantine/core";
+import Moralis from "moralis-v1";
 import { useRouter } from "next/router";
-import { useEffect } from "react";
-import { useMoralis, useWeb3Contract } from "react-moralis";
+import { useEffect, useState } from "react";
+import {
+	useMoralis,
+	useWeb3Contract,
+	useWeb3ExecuteFunction,
+} from "react-moralis";
 import { abi, contractAddresses, contractNames } from "../../constants";
 
 export default function Project() {
@@ -31,6 +37,7 @@ export default function Project() {
 		abi[chainId][contractNames.PROJECTS_CONTRACT]
 	);
 
+	const [applicant, setApplicant] = useState("");
 	const {
 		data: projectData,
 		error: projectError,
@@ -87,16 +94,53 @@ export default function Project() {
 		functionName: "applyForProject",
 		params: {
 			_id: id,
+			assigneeAddress: applicant,
 		},
+	});
+
+	const {
+		error: cancelApplyError,
+		isFetching: isFetchingCancelApply,
+		isLoading: isLoadingCancelApply,
+		runContractFunction: cancelApplyForProject,
+	} = useWeb3Contract({
+		abi: projectsContractAbi,
+		contractAddress: projectsContractAddress,
+		functionName: "cancelApplyForProject",
+		params: {
+			_id: id,
+		},
+	});
+
+	let total = 0;
+
+	if (Array.isArray(checkpointsData)) {
+		checkpointsData[1].forEach((checkpoint) => {
+			total += checkpoint.toNumber();
+		});
+	}
+
+	const {
+		error: assignError,
+		isFetching: isFetchingAssign,
+		isLoading: isLoadingAssign,
+		fetch: assign,
+	} = useWeb3ExecuteFunction({
+		abi: projectsContractAbi,
+		contractAddress: projectsContractAddress,
+		functionName: "assign",
+		params: {
+			_id: id,
+			assigneeAddress: applicant,
+		},
+		msgValue: total,
 	});
 
 	useEffect(() => {
 		getProject();
 		getCheckpointRewardsDetails();
 		getProjectApplicants();
-		console.log(projectData);
 		console.log(checkpointsData);
-		console.log(applicantsData, account);
 	}, []);
 
 	const alreadyApplied =
@@ -104,6 +148,14 @@ export default function Project() {
 		applicantsData.find(
 			(id) => id.toLowerCase() === account?.toLowerCase()
 		);
+
+	const normalizedApplicantsData = Array.isArray(applicantsData)
+		? applicantsData
+				.filter((address) => parseInt(address, 16) !== 0)
+				.map((applicant) => ({ value: applicant, label: applicant }))
+		: [];
+
+	const assignee = projectData ? parseInt(projectData[1], 16) : 0;
 
 	return (
 		<Container fluid m="sm">
@@ -174,45 +226,103 @@ export default function Project() {
 					<Grid.Col span={1}>
 						<Divider orientation="vertical" />
 					</Grid.Col>
-					{isEmployer && (
+					{isEmployer &&
+					Array.isArray(projectData) &&
+					assignee === 0 ? (
 						<Grid.Col span={4}>
-							{isLoadingApplicants ||
-							isFetchingApplicants ||
-							!Array.isArray(applicantsData) ? (
+							{isLoadingApplicants || isFetchingApplicants ? (
 								<Loader variant="bars" />
 							) : (
-								<Table>
-									<thead>
-										<tr>
-											<th>Applicants</th>
-											<th>Assign</th>
-										</tr>
-									</thead>
-									<tbody>
-										{applicantsData.map((address) => (
-											<tr key={address}>
-												<td>{address}</td>
-												<td>Assign</td>
-											</tr>
-										))}
-									</tbody>
-								</Table>
+								<>
+									{normalizedApplicantsData.length > 0 ? (
+										<Stack>
+											<Title order={5}>Applicants</Title>
+											<Divider orientation="horizontal" />
+											<SegmentedControl
+												value={applicant}
+												onChange={setApplicant}
+												orientation="vertical"
+												data={normalizedApplicantsData}
+												color="green"
+												radius="md"
+												size="xs"
+											/>
+											<Button
+												disabled={applicant === ""}
+												onClick={async () => {
+													await assign({
+														onSuccess: async (
+															tsx
+														) => {
+															await tsx.wait(1);
+															await getProject();
+														},
+													});
+												}}
+												loading={
+													isFetchingAssign ||
+													isLoadingAssign
+												}>
+												Assign
+											</Button>
+										</Stack>
+									) : (
+										<Text>No Applicants</Text>
+									)}
+								</>
 							)}
 						</Grid.Col>
+					) : assignee !== 0 ? (
+						<Grid.Col span={4}>
+							<Title order={5}>Assignee</Title>
+							<Divider orientation="horizontal" />
+							<Text>
+								{projectData[1].toUpperCase()}
+								{projectData[1].toUpperCase() ===
+									account?.toUpperCase() && " (You)"}
+							</Text>
+						</Grid.Col>
+					) : (
+						<Text>No Assignee</Text>
 					)}
 				</Grid>
 
 				<Divider orientation="horizontal" />
-
-				<Button
-					disabled={!applicantsData || isEmployer || alreadyApplied}
-					onClick={() => {
-						applyForProject();
-						getProjectApplicants();
-					}}
-					loading={isFetchingApply || isLoadingApply}>
-					{alreadyApplied ? "Already Applied" : "Apply"}
-				</Button>
+				{alreadyApplied ? (
+					<Button
+						color="red"
+						onClick={() => {
+							cancelApplyForProject({
+								onSuccess: async (tsx) => {
+									await tsx.wait(1);
+									getProjectApplicants();
+								},
+							});
+						}}
+						disabled={
+							projectData[1].toUpperCase() ===
+							account.toUpperCase()
+						}
+						loading={isFetchingCancelApply || isLoadingCancelApply}>
+						Cancel Application
+					</Button>
+				) : (
+					<Button
+						disabled={
+							!applicantsData || isEmployer || alreadyApplied
+						}
+						onClick={() => {
+							applyForProject({
+								onSuccess: async (tsx) => {
+									await tsx.wait(1);
+									getProjectApplicants();
+								},
+							});
+						}}
+						loading={isFetchingApply || isLoadingApply}>
+						Apply
+					</Button>
+				)}
 			</Stack>
 		</Container>
 	);

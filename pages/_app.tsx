@@ -50,8 +50,8 @@ export default function App(props: AppProps & { colorScheme: ColorScheme }) {
 					withGlobalStyles
 					withNormalizeCSS>
 					<MoralisProvider
-						serverUrl="https://ivpsudbvuwhw.usemoralis.com:2053/server"
-						appId="QN2m4QcjmEUcr5MV4fov1elbCBI2u2faI6ySGMF5">
+						serverUrl="https://f5plv1uonydj.grandmoralis.com:2053/server"
+						appId="xYdfGGtvz6SLJFTnazWa9wihrPjycuyBw44EyuH9">
 						<NotificationsProvider position="top-right">
 							<ModalContextProvider>
 								<AppShell

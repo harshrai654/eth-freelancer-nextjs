@@ -18,15 +18,17 @@ import {
 	IconShieldOff,
 } from "@tabler/icons";
 import { abi, contractAddresses, contractNames } from "../../constants";
-import { useWeb3Contract, useMoralis } from "react-moralis";
+import {
+	useWeb3Contract,
+	useMoralis,
+	useWeb3ExecuteFunction,
+} from "react-moralis";
 import { v4 } from "uuid";
 import Moralis from "moralis-v1";
 import { showNotification } from "@mantine/notifications";
-import { useRouter } from "next/router";
 import { ModalContext } from "../../contexts/ModalContext";
 
 export default function AddProjectForm({ setLoading }) {
-	const router = useRouter();
 	const { setOpen } = useContext(ModalContext);
 
 	const form = useForm({
@@ -67,8 +69,8 @@ export default function AddProjectForm({ setLoading }) {
 		error,
 		isFetching,
 		isLoading,
-		runContractFunction: addProject,
-	} = useWeb3Contract({});
+		fetch: addProject,
+	} = useWeb3ExecuteFunction({});
 
 	async function handleAddProjectSubmit({
 		title,
@@ -105,7 +107,8 @@ export default function AddProjectForm({ setLoading }) {
 					color: "green",
 					icon: <IconShieldCheck />,
 				});
-				await tx.wait(6);
+				await tx.wait(1);
+				setOpen(false);
 			},
 			onError: (error) => {
 				showNotification({
@@ -119,8 +122,6 @@ export default function AddProjectForm({ setLoading }) {
 				console.log(error);
 			},
 		});
-
-		setOpen(false);
 	}
 
 	useEffect(() => {
@@ -187,11 +188,11 @@ export default function AddProjectForm({ setLoading }) {
 						<NumberInput
 							label="Milestone Reward"
 							radius="md"
-							step={0.0000000001}
+							step={0.00000001}
 							description="Reward value for milestone completion"
-							precision={10}
+							precision={8}
 							required
-							min={0}
+							min={0.00000001}
 							icon={<IconCurrencyEthereum size={18} />}
 							withAsterisk
 							{...form.getInputProps(

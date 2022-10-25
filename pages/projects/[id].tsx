@@ -11,8 +11,10 @@ import {
 	Card,
 	Button,
 	SegmentedControl,
+	Group,
 } from "@mantine/core";
-import Moralis from "moralis-v1";
+import { showNotification } from "@mantine/notifications";
+import { IconShieldCheck, IconShieldOff } from "@tabler/icons";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import {
@@ -20,6 +22,7 @@ import {
 	useWeb3Contract,
 	useWeb3ExecuteFunction,
 } from "react-moralis";
+import SubmitWorkForm from "../../components/Forms/SubmitWorkForm";
 import { abi, contractAddresses, contractNames } from "../../constants";
 
 export default function Project() {
@@ -112,11 +115,11 @@ export default function Project() {
 		},
 	});
 
-	let total = 0;
+	let total = BigInt(0);
 
 	if (Array.isArray(checkpointsData)) {
 		checkpointsData[1].forEach((checkpoint) => {
-			total += checkpoint.toNumber();
+			total += BigInt(checkpoint.toString());
 		});
 	}
 
@@ -133,8 +136,53 @@ export default function Project() {
 			_id: id,
 			assigneeAddress: applicant,
 		},
-		msgValue: total,
+		msgValue: total.toString(),
 	});
+
+	const {
+		isFetching: isFetchingCheckpointComplete,
+		isLoading: isLoadingCheckpointComplete,
+		runContractFunction: checkpointCompleted,
+	} = useWeb3Contract({});
+
+	function handleCheckpointCompleted(index) {
+		const params = {
+			abi: projectsContractAbi,
+			contractAddress: projectsContractAddress,
+			functionName: "checkpointCompleted",
+			params: {
+				_id: id,
+				index,
+			},
+		};
+
+		checkpointCompleted({
+			params,
+			onSuccess: async (tx) => {
+				await tx.wait(1);
+				showNotification({
+					id: "checkpoint-verify-success",
+					autoClose: 5000,
+					title: "Transaction successful",
+					message: `Checkpoint Completed, Reward transferred`,
+					color: "green",
+					icon: <IconShieldCheck />,
+				});
+				getCheckpointRewardsDetails();
+			},
+			onError: (error) => {
+				showNotification({
+					id: "checkpoint-verify-fail",
+					autoClose: 5000,
+					title: "Transaction failed",
+					message: `Reward transfer failed`,
+					color: "red",
+					icon: <IconShieldOff />,
+				});
+				console.log(error);
+			},
+		});
+	}
 
 	useEffect(() => {
 		getProject();
@@ -200,12 +248,12 @@ export default function Project() {
 											<td>
 												{checkpointsData[1][
 													index
-												].toNumber()}
+												].toString()}
 											</td>
 											<td>
 												{checkpointsData[2][index] ? (
 													<Badge
-														color="red"
+														color="green"
 														variant="dot">
 														Completed
 													</Badge>
@@ -217,6 +265,62 @@ export default function Project() {
 													</Badge>
 												)}
 											</td>
+											{!isEmployer ? (
+												<td>
+													{!checkpointsData[2][
+														index
+													] &&
+														projectData[1].toUpperCase() ===
+															account?.toUpperCase() && (
+															<SubmitWorkForm
+																title={name}
+																id={id}
+																index={index}
+																getCheckpointRewardsDetails={
+																	getCheckpointRewardsDetails
+																}
+																currentText={
+																	checkpointsData[3][
+																		index
+																	]
+																}
+															/>
+														)}
+												</td>
+											) : (
+												<td>
+													{checkpointsData[3][
+														index
+													] !== "" &&
+														!checkpointsData[2][
+															index
+														] && (
+															<Group>
+																<Text variant="link">
+																	{
+																		checkpointsData[3][
+																			index
+																		]
+																	}
+																</Text>
+																<Button
+																	variant="filled"
+																	color={
+																		"pink"
+																	}
+																	radius="lg"
+																	onClick={() =>
+																		handleCheckpointCompleted(
+																			index
+																		)
+																	}>
+																	Verify Work
+																</Button>
+																<br />
+															</Group>
+														)}
+												</td>
+											)}
 										</tr>
 									))}
 								</tbody>
@@ -300,8 +404,9 @@ export default function Project() {
 							});
 						}}
 						disabled={
+							!projectData ||
 							projectData[1].toUpperCase() ===
-							account.toUpperCase()
+								account.toUpperCase()
 						}
 						loading={isFetchingCancelApply || isLoadingCancelApply}>
 						Cancel Application

@@ -12,16 +12,8 @@ export default function AuthRouter({ children }) {
 		isUserUpdating,
 		isWeb3EnableLoading,
 		isWeb3Enabled,
-		enableWeb3,
-		web3,
 	} = useMoralis();
 	const router = useRouter();
-
-	useEffect(() => {
-		if (!isWeb3Enabled) {
-			enableWeb3();
-		}
-	}, [web3?.provider]);
 
 	useEffect(() => {
 		if (!isAuthenticated) {

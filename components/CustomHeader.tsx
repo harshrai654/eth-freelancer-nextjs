@@ -5,23 +5,40 @@ import {
 	IconPlus,
 	IconSun,
 	IconMoon,
-	IconUserSearch,
 } from "@tabler/icons";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { useMoralis } from "react-moralis";
 import { showNotification } from "@mantine/notifications";
 import { ModalContext } from "../contexts/ModalContext";
 import AddProjectForm from "../components/Forms/AddProjectForm";
 import ModalWrapper from "../components/ModalWrapper";
 import { LoadingContext } from "../contexts/LoadingContext";
+import Moralis from "moralis-v1";
 
 export default function CustomHeader({ colorScheme, setColorScheme }) {
-	const { authenticate, isAuthenticated, user, logout, isAuthenticating } =
-		useMoralis();
+	const {
+		authenticate,
+		isAuthenticated,
+		user,
+		logout,
+		isAuthenticating,
+		enableWeb3,
+		web3,
+		isWeb3Enabled,
+		chainId,
+		account,
+	} = useMoralis();
 	const { setOpen } = useContext(ModalContext);
 	const { loading, setLoading } = useContext(LoadingContext);
-
 	const role = user?.get("role");
+
+	console.log(account, chainId);
+
+	useEffect(() => {
+		if (!isWeb3Enabled) {
+			enableWeb3();
+		}
+	}, [web3?.provider]);
 
 	return (
 		<Grid justify="space-between" align="center" gutter="xl">
@@ -33,8 +50,18 @@ export default function CustomHeader({ colorScheme, setColorScheme }) {
 			<Grid.Col span={1}>
 				{!isAuthenticated ? (
 					<Button
-						onClick={() =>
+						onClick={async () => {
+							console.log(account, chainId);
+							const { message } = await Moralis.Cloud.run(
+								"requestMessage",
+								{
+									address: account,
+									chain: parseInt(chainId, 16),
+									network: "evm",
+								}
+							);
 							authenticate({
+								signingMessage: message,
 								onSuccess: () =>
 									showNotification({
 										id: "sign-in success",
@@ -45,8 +72,11 @@ export default function CustomHeader({ colorScheme, setColorScheme }) {
 										color: "green",
 										icon: <IconShieldCheck />,
 									}),
-							})
-						}>
+								onError: (error) => {
+									console.log(error);
+								},
+							});
+						}}>
 						Login
 					</Button>
 				) : (

@@ -115,11 +115,27 @@ export default function Project() {
 		},
 	});
 
+	const {
+		error: unassignError,
+		isFetching: isFetchingUnassign,
+		isLoading: isLoadingUnassign,
+		runContractFunction: unassign,
+	} = useWeb3Contract({
+		abi: projectsContractAbi,
+		contractAddress: projectsContractAddress,
+		functionName: "unassign",
+		params: {
+			_id: id,
+		},
+	});
+
 	let total = BigInt(0);
 
 	if (Array.isArray(checkpointsData)) {
-		checkpointsData[1].forEach((checkpoint) => {
-			total += BigInt(checkpoint.toString());
+		checkpointsData[1].forEach((checkpoint, index) => {
+			total += checkpointsData[2][index]
+				? BigInt(0)
+				: BigInt(checkpoint.toString());
 		});
 	}
 
@@ -189,6 +205,7 @@ export default function Project() {
 		getCheckpointRewardsDetails();
 		getProjectApplicants();
 		console.log(checkpointsData);
+		console.log(projectData);
 	}, []);
 
 	const alreadyApplied =
@@ -205,6 +222,14 @@ export default function Project() {
 
 	const assignee = projectData ? parseInt(projectData[1], 16) : 0;
 
+	let pendingCheckpointVerification =
+		Array.isArray(checkpointsData) &&
+		checkpointsData.length > 0 &&
+		checkpointsData[3].some((checkpoint, index) => {
+			return checkpoint !== "" && checkpointsData[2][index] === false;
+		});
+
+	console.log(checkpointsData);
 	return (
 		<Container fluid m="sm">
 			<Stack align="flex-start">
@@ -392,42 +417,87 @@ export default function Project() {
 				</Grid>
 
 				<Divider orientation="horizontal" />
-				{alreadyApplied ? (
-					<Button
-						color="red"
-						onClick={() => {
-							cancelApplyForProject({
-								onSuccess: async (tsx) => {
-									await tsx.wait(1);
-									getProjectApplicants();
-								},
-							});
-						}}
-						disabled={
-							!projectData ||
-							projectData[1].toUpperCase() ===
-								account.toUpperCase()
-						}
-						loading={isFetchingCancelApply || isLoadingCancelApply}>
-						Cancel Application
-					</Button>
-				) : (
-					<Button
-						disabled={
-							!applicantsData || isEmployer || alreadyApplied
-						}
-						onClick={() => {
-							applyForProject({
-								onSuccess: async (tsx) => {
-									await tsx.wait(1);
-									getProjectApplicants();
-								},
-							});
-						}}
-						loading={isFetchingApply || isLoadingApply}>
-						Apply
-					</Button>
-				)}
+				<Grid>
+					<Grid.Col>
+						{alreadyApplied ? (
+							<Button
+								color="red"
+								onClick={() => {
+									cancelApplyForProject({
+										onSuccess: async (tsx) => {
+											await tsx.wait(1);
+											getProjectApplicants();
+										},
+									});
+								}}
+								disabled={
+									!projectData ||
+									projectData[1].toUpperCase() ===
+										account.toUpperCase()
+								}
+								loading={
+									isFetchingCancelApply ||
+									isLoadingCancelApply
+								}>
+								Cancel Application
+							</Button>
+						) : (
+							<Button
+								disabled={
+									!applicantsData ||
+									isEmployer ||
+									alreadyApplied
+								}
+								onClick={() => {
+									applyForProject({
+										onSuccess: async (tsx) => {
+											await tsx.wait(1);
+											getProjectApplicants();
+										},
+									});
+								}}
+								loading={isFetchingApply || isLoadingApply}>
+								Apply
+							</Button>
+						)}
+					</Grid.Col>
+					<Grid.Col>
+						{isEmployer &&
+							!pendingCheckpointVerification &&
+							assignee !== 0 && (
+								<Button
+									onClick={() => {
+										unassign({
+											onSuccess: async (tx) => {
+												await tx.wait(1);
+												showNotification({
+													id: "unassign-success",
+													autoClose: 5000,
+													title: "Unassign Success",
+													message: `Successfully unassigned ${projectData[1]}`,
+													color: "green",
+													icon: <IconShieldCheck />,
+												});
+												getProject();
+											},
+											onError: (error) => {
+												showNotification({
+													id: "unassign-fail",
+													autoClose: 5000,
+													title: "Unable to unassign",
+													message: `Unable to unassign ${projectData[1]}`,
+													color: "red",
+													icon: <IconShieldOff />,
+												});
+												console.log(error);
+											},
+										});
+									}}>
+									Un-assign
+								</Button>
+							)}
+					</Grid.Col>
+				</Grid>
 			</Stack>
 		</Container>
 	);

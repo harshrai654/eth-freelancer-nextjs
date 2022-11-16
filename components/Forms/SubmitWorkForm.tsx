@@ -58,7 +58,7 @@ export default function SubmitWorkForm({
 		setCheckpointLink({
 			params,
 			onSuccess: async (tx) => {
-				await tx.wait(1);
+				await tx.wait(6);
 				getCheckpointRewardsDetails();
 			},
 		});

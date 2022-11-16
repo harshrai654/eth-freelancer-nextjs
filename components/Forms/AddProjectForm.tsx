@@ -107,7 +107,7 @@ export default function AddProjectForm({ setLoading }) {
 					color: "green",
 					icon: <IconShieldCheck />,
 				});
-				await tx.wait(1);
+				await tx.wait(6);
 				setOpen(false);
 			},
 			onError: (error) => {

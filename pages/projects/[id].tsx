@@ -175,7 +175,7 @@ export default function Project() {
 		checkpointCompleted({
 			params,
 			onSuccess: async (tx) => {
-				await tx.wait(1);
+				await tx.wait(6);
 				showNotification({
 					id: "checkpoint-verify-success",
 					autoClose: 5000,
@@ -469,7 +469,7 @@ export default function Project() {
 									onClick={() => {
 										unassign({
 											onSuccess: async (tx) => {
-												await tx.wait(1);
+												await tx.wait(6);
 												showNotification({
 													id: "unassign-success",
 													autoClose: 5000,

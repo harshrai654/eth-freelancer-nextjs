@@ -46,8 +46,8 @@ export default function Project() {
 		error: projectError,
 		isFetching: isFetchingProject,
 		isLoading: isLoadingProject,
-		runContractFunction: getProject,
-	} = useWeb3Contract({
+		fetch: getProject,
+	} = useWeb3ExecuteFunction({
 		abi: projectsContractAbi,
 		contractAddress: projectsContractAddress,
 		functionName: "getProject",
@@ -61,8 +61,8 @@ export default function Project() {
 		error: checkpointsError,
 		isFetching: isFetchingCheckpoints,
 		isLoading: isLoadingCheckpoints,
-		runContractFunction: getCheckpointRewardsDetails,
-	} = useWeb3Contract({
+		fetch: getCheckpointRewardsDetails,
+	} = useWeb3ExecuteFunction({
 		abi: projectsContractAbi,
 		contractAddress: projectsContractAddress,
 		functionName: "getCheckpointRewardsDetails",
@@ -76,8 +76,8 @@ export default function Project() {
 		error: applicantsError,
 		isFetching: isFetchingApplicants,
 		isLoading: isLoadingApplicants,
-		runContractFunction: getProjectApplicants,
-	} = useWeb3Contract({
+		fetch: getProjectApplicants,
+	} = useWeb3ExecuteFunction({
 		abi: projectsContractAbi,
 		contractAddress: projectsContractAddress,
 		functionName: "getProjectApplicants",
@@ -90,8 +90,8 @@ export default function Project() {
 		error: applyError,
 		isFetching: isFetchingApply,
 		isLoading: isLoadingApply,
-		runContractFunction: applyForProject,
-	} = useWeb3Contract({
+		fetch: applyForProject,
+	} = useWeb3ExecuteFunction({
 		abi: projectsContractAbi,
 		contractAddress: projectsContractAddress,
 		functionName: "applyForProject",
@@ -105,8 +105,8 @@ export default function Project() {
 		error: cancelApplyError,
 		isFetching: isFetchingCancelApply,
 		isLoading: isLoadingCancelApply,
-		runContractFunction: cancelApplyForProject,
-	} = useWeb3Contract({
+		fetch: cancelApplyForProject,
+	} = useWeb3ExecuteFunction({
 		abi: projectsContractAbi,
 		contractAddress: projectsContractAddress,
 		functionName: "cancelApplyForProject",
@@ -119,8 +119,8 @@ export default function Project() {
 		error: unassignError,
 		isFetching: isFetchingUnassign,
 		isLoading: isLoadingUnassign,
-		runContractFunction: unassign,
-	} = useWeb3Contract({
+		fetch: unassign,
+	} = useWeb3ExecuteFunction({
 		abi: projectsContractAbi,
 		contractAddress: projectsContractAddress,
 		functionName: "unassign",
@@ -158,8 +158,8 @@ export default function Project() {
 	const {
 		isFetching: isFetchingCheckpointComplete,
 		isLoading: isLoadingCheckpointComplete,
-		runContractFunction: checkpointCompleted,
-	} = useWeb3Contract({});
+		fetch: checkpointCompleted,
+	} = useWeb3ExecuteFunction({});
 
 	function handleCheckpointCompleted(index) {
 		const params = {
@@ -383,7 +383,7 @@ export default function Project() {
 														onSuccess: async (
 															tsx
 														) => {
-															await tsx.wait(1);
+															await tsx.wait(6);
 															await getProject();
 														},
 													});
@@ -425,7 +425,7 @@ export default function Project() {
 								onClick={() => {
 									cancelApplyForProject({
 										onSuccess: async (tsx) => {
-											await tsx.wait(1);
+											await tsx.wait(6);
 											getProjectApplicants();
 										},
 									});
@@ -451,7 +451,7 @@ export default function Project() {
 								onClick={() => {
 									applyForProject({
 										onSuccess: async (tsx) => {
-											await tsx.wait(1);
+											await tsx.wait(6);
 											getProjectApplicants();
 										},
 									});

@@ -2,7 +2,11 @@ import { useState } from "react";
 import { Modal, TextInput, Button, Divider } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { IconFileReport } from "@tabler/icons";
-import { useWeb3Contract, useMoralis } from "react-moralis";
+import {
+	useWeb3Contract,
+	useMoralis,
+	useWeb3ExecuteFunction,
+} from "react-moralis";
 import { abi, contractAddresses, contractNames } from "../../constants";
 
 export default function SubmitWorkForm({
@@ -38,8 +42,8 @@ export default function SubmitWorkForm({
 		error,
 		isFetching: isFetchingCheckpointLinks,
 		isLoading: isLoadingCheckpointLinks,
-		runContractFunction: setCheckpointLink,
-	} = useWeb3Contract({});
+		fetch: setCheckpointLink,
+	} = useWeb3ExecuteFunction({});
 
 	console.log(error);
 

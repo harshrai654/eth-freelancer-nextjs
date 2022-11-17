@@ -99,6 +99,7 @@ export default function AddProjectForm({ setLoading }) {
 		await addProject({
 			params,
 			onSuccess: async (tx) => {
+				await tx.wait(6);
 				showNotification({
 					id: "project-add-success",
 					autoClose: 5000,
@@ -107,7 +108,6 @@ export default function AddProjectForm({ setLoading }) {
 					color: "green",
 					icon: <IconShieldCheck />,
 				});
-				await tx.wait(6);
 				setOpen(false);
 			},
 			onError: (error) => {
